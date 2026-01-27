@@ -1,21 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { QrCode, Link, MessageSquare, User, Download, Copy, Check, Globe } from 'lucide-react';
+import { QrCode, Link, User, Download, Copy, Check, Globe } from 'lucide-react';
 
 const TRANSLATIONS = {
   "tr-TR": {
     "appTitle": "QR Kod Oluşturucu",
-    "appDescription": "URL'ler, metin ve iletişim bilgileri için QR kodları oluşturun",
+    "appDescription": "URL'ler ve iletişim bilgileri için QR kodları oluşturun",
     "urlTab": "URL",
-    "textTab": "Metin",
     "contactTab": "İletişim",
     "enterUrl": "URL Girin",
-    "enterText": "Metin Girin",
     "contactInformation": "İletişim Bilgileri",
     "websiteUrl": "Web Sitesi URL'si",
     "urlPlaceholder": "ornek.com veya https://ornek.com",
     "urlHelp": "Bir web sitesi URL'si girin. http:// eklemezseniz, otomatik olarak https:// ekleyeceğiz.",
-    "textContent": "Metin İçeriği",
-    "textPlaceholder": "QR kodu oluşturmak için herhangi bir metin girin...",
     "firstName": "Ad",
     "firstNamePlaceholder": "Ahmet",
     "lastName": "Soyad",
@@ -41,18 +37,14 @@ const TRANSLATIONS = {
   },
   "en-US": {
     "appTitle": "QR Code Generator",
-    "appDescription": "Generate QR codes for URLs, text, and contact information",
+    "appDescription": "Generate QR codes for URLs and contact information",
     "urlTab": "URL",
-    "textTab": "Text",
     "contactTab": "Contact",
     "enterUrl": "Enter URL",
-    "enterText": "Enter Text",
     "contactInformation": "Contact Information",
     "websiteUrl": "Website URL",
     "urlPlaceholder": "example.com or https://example.com",
     "urlHelp": "Enter a website URL. If you don't include http://, we'll add https:// automatically.",
-    "textContent": "Text Content",
-    "textPlaceholder": "Enter any text to generate QR code...",
     "firstName": "First Name",
     "firstNamePlaceholder": "John",
     "lastName": "Last Name",
@@ -97,7 +89,6 @@ const QRCodeGenerator = () => {
   
   // Form states for different types
   const [urlInput, setUrlInput] = useState('');
-  const [textInput, setTextInput] = useState('');
   const [contactInfo, setContactInfo] = useState({
     firstName: '',
     lastName: '',
@@ -202,11 +193,16 @@ const QRCodeGenerator = () => {
   };
 
   const generateVCard = (contact) => {
+    // UTF-8 encoding için özel karakterleri destekle
+    const encodeVCardText = (text) => {
+      return text; // vCard formatı UTF-8'i destekler
+    };
+    
     const vcard = `BEGIN:VCARD
 VERSION:3.0
-FN:${contact.firstName} ${contact.lastName}
-N:${contact.lastName};${contact.firstName};;;
-ORG:${contact.organization}
+FN:${encodeVCardText(contact.firstName)} ${encodeVCardText(contact.lastName)}
+N:${encodeVCardText(contact.lastName)};${encodeVCardText(contact.firstName)};;;
+ORG:${encodeVCardText(contact.organization)}
 TEL:${contact.phone}
 EMAIL:${contact.email}
 URL:${contact.url}
@@ -221,9 +217,6 @@ END:VCARD`;
       case 'url':
         data = formatUrl(urlInput);
         break;
-      case 'text':
-        data = textInput;
-        break;
       case 'contact':
         if (contactInfo.firstName || contactInfo.lastName || contactInfo.phone || contactInfo.email) {
           data = generateVCard(contactInfo);
@@ -235,7 +228,7 @@ END:VCARD`;
     
     setQrData(data);
     generateQRCode(data);
-  }, [activeTab, urlInput, textInput, contactInfo]);
+  }, [activeTab, urlInput, contactInfo]);
 
   const downloadQRCode = () => {
     if (!qrData) return;
@@ -272,7 +265,6 @@ END:VCARD`;
 
   const resetForm = () => {
     setUrlInput('');
-    setTextInput('');
     setContactInfo({
       firstName: '',
       lastName: '',
@@ -294,7 +286,6 @@ END:VCARD`;
 
   const tabs = [
     { id: 'url', label: t('urlTab'), icon: Link },
-    { id: 'text', label: t('textTab'), icon: MessageSquare },
     { id: 'contact', label: t('contactTab'), icon: User }
   ];
 
@@ -358,7 +349,6 @@ END:VCARD`;
               <div className="space-y-6">
                 <h2 className="text-2xl font-semibold mb-4" style={{ color: '#d8d8d8' }}>
                   {activeTab === 'url' && t('enterUrl')}
-                  {activeTab === 'text' && t('enterText')}
                   {activeTab === 'contact' && t('contactInformation')}
                 </h2>
 
@@ -385,29 +375,6 @@ END:VCARD`;
                     <p className="text-xs mt-1" style={{ color: '#999999' }}>
                       {t('urlHelp')}
                     </p>
-                  </div>
-                )}
-
-                {/* Text Input */}
-                {activeTab === 'text' && (
-                  <div>
-                    <label className="block text-sm font-medium mb-2" style={{ color: '#d8d8d8' }}>
-                      {t('textContent')}
-                    </label>
-                    <textarea
-                      value={textInput}
-                      onChange={(e) => setTextInput(e.target.value)}
-                      placeholder={t('textPlaceholder')}
-                      rows={4}
-                      className="w-full px-4 py-3 rounded-xl transition-all duration-200 resize-none placeholder-gray-500"
-                      style={{ 
-                        background: '#1a1a1a',
-                        border: '1px solid #333333',
-                        color: '#d8d8d8'
-                      }}
-                      onFocus={(e) => e.target.style.borderColor = '#fbb80f'}
-                      onBlur={(e) => e.target.style.borderColor = '#333333'}
-                    />
                   </div>
                 )}
 
