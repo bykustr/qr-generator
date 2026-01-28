@@ -23,7 +23,7 @@ Modern ve kullanıcı dostu QR kod oluşturucu uygulaması. URL'ler ve iletişim
 
 ## 🌐 Canlı Demo
 
-**[https://qr-code-share.netlify.app](https://qr-code-share.netlify.app)**
+**[https://qr.bykus.tr](https://qr.bykus.tr)**
 
 ## 💻 Yerel Kurulum
 ```bash
